@@ -23,6 +23,9 @@ Thumbs.db
 # Docker volumes and data
 data/
 docker-data/
+minio-data/
+postgres-data/
+dremio-data/
 
 # Logs
 *.log

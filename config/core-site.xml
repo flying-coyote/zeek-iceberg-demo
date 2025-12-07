@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- S3/MinIO Configuration for Impala -->
+    <property>
+        <name>fs.s3a.endpoint</name>
+        <value>http://minio:9000</value>
+        <description>MinIO endpoint URL</description>
+    </property>
+
+    <property>
+        <name>fs.s3a.access.key</name>
+        <value>minioadmin</value>
+        <description>MinIO access key</description>
+    </property>
+
+    <property>
+        <name>fs.s3a.secret.key</name>
+        <value>minioadmin</value>
+        <description>MinIO secret key</description>
+    </property>
+
+    <property>
+        <name>fs.s3a.path.style.access</name>
+        <value>true</value>
+        <description>Use path-style access for MinIO</description>
+    </property>
+
+    <property>
+        <name>fs.s3a.connection.ssl.enabled</name>
+        <value>false</value>
+        <description>Disable SSL for local MinIO</description>
+    </property>
+
+    <property>
+        <name>fs.s3a.impl</name>
+        <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+        <description>S3A filesystem implementation</description>
+    </property>
+
+    <property>
+        <name>fs.s3a.fast.upload</name>
+        <value>true</value>
+        <description>Enable fast upload</description>
+    </property>
+
+    <property>
+        <name>fs.s3a.connection.maximum</name>
+        <value>100</value>
+        <description>Maximum number of connections to S3</description>
+    </property>
+
+    <property>
+        <name>fs.s3a.threads.max</name>
+        <value>25</value>
+        <description>Maximum threads for S3A</description>
+    </property>
+</configuration>

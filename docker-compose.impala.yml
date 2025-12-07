@@ -1,0 +1,94 @@
+version: '3.8'
+
+# Impala Extension for Zeek → OCSF → Iceberg Demo
+# This adds Apache Impala for high-performance SQL queries on OCSF data
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.impala.yml up -d
+
+services:
+  # Impala State Store - Maintains cluster metadata
+  impala-statestore:
+    image: apache/impala:4.3.0-impala_quickstart_hms
+    container_name: zeek-demo-impala-statestore
+    hostname: impala-statestore
+    command: ["/opt/impala/bin/statestored"]
+    environment:
+      - IMPALA_STATESTORE_HOST=impala-statestore
+      - JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+    networks:
+      - zeek-demo-net
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "25010"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Impala Catalog - Manages metadata
+  impala-catalog:
+    image: apache/impala:4.3.0-impala_quickstart_hms
+    container_name: zeek-demo-impala-catalog
+    hostname: impala-catalog
+    command: ["/opt/impala/bin/catalogd"]
+    environment:
+      - IMPALA_CATALOG_SERVICE_HOST=impala-catalog
+      - IMPALA_STATESTORE_HOST=impala-statestore
+      - HIVE_METASTORE_URI=thrift://hive-metastore:9083
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+    depends_on:
+      - impala-statestore
+      - hive-metastore
+    networks:
+      - zeek-demo-net
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "26000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Impala Daemon - Query executor
+  impala-daemon:
+    image: apache/impala:4.3.0-impala_quickstart_hms
+    container_name: zeek-demo-impala-daemon
+    hostname: impala-daemon
+    command: ["/opt/impala/bin/impalad"]
+    ports:
+      - "21000:21000"  # Impala shell (beeline/jdbc)
+      - "21050:21050"  # Impala daemon web UI
+      - "25000:25000"  # Impala shell (impala-shell)
+      - "25020:25020"  # Impala catalog web UI
+    environment:
+      - IMPALA_CATALOG_SERVICE_HOST=impala-catalog
+      - IMPALA_STATESTORE_HOST=impala-statestore
+      - HIVE_METASTORE_URI=thrift://hive-metastore:9083
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - IMPALA_IMPALAD_ARGS=--fe_service_threads=100 --be_service_threads=100
+      - JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      # S3/MinIO configuration
+      - fs.s3a.endpoint=http://minio:9000
+      - fs.s3a.access.key=minioadmin
+      - fs.s3a.secret.key=minioadmin
+      - fs.s3a.path.style.access=true
+      - fs.s3a.connection.ssl.enabled=false
+      # Memory settings for 1M+ records
+      - IMPALA_MEM_LIMIT=4G
+    volumes:
+      - ./config/core-site.xml:/etc/hadoop/conf/core-site.xml:ro
+      - ./config/hdfs-site.xml:/etc/hadoop/conf/hdfs-site.xml:ro
+    depends_on:
+      - impala-catalog
+      - minio
+    networks:
+      - zeek-demo-net
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "21000"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+networks:
+  zeek-demo-net:
+    external: true

@@ -1,0 +1,113 @@
+{
+  "url": "http://localhost:9047/",
+  "title": "Dremio",
+  "console_messages": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "location": {
+        "url": "https://www.googletagmanager.com/gtm.js?id=GTM-5D8RST",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "location": {
+        "url": "https://o31066.ingest.sentry.io/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "location": {
+        "url": "https://o31066.ingest.sentry.io/api/66750/envelope/?sentry_key=2592b22bfefa49b3b5b1e72393f84194&sentry_version=7&sentry_client=sentry.javascript.browser%2F8.33.1",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    }
+  ],
+  "errors": [
+    "Invalid language tag: en-US@posix"
+  ],
+  "network_responses": [
+    {
+      "url": "http://localhost:9047/",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/css/vendor.6dd3e03a.css",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/css/app.91796d5e.css",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/js/runtime.cf15651f.js",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/js/jsPlumb-2.1.4-min.js",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/js/app.306a0043.js",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/js/vendor.387accd6.js",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/media/dremio.725a030307904faaf7c4.svg",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/js/4197.91752383.chunk.js",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/js/2779.a9671a7a.chunk.js",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/js/SQLParsingWorker.worker.5e78ed3f.worker.js",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "http://localhost:9047/static/js/9655.e03c235e.chunk.js",
+      "status": 200,
+      "statusText": "OK"
+    },
+    {
+      "url": "https://widget.intercom.io/widget/gdcxa2zo",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://o31066.ingest.sentry.io/",
+      "status": 404,
+      "statusText": ""
+    },
+    {
+      "url": "https://o31066.ingest.sentry.io/api/66750/envelope/?sentry_key=2592b22bfefa49b3b5b1e72393f84194&sentry_version=7&sentry_client=sentry.javascript.browser%2F8.33.1",
+      "status": 403,
+      "statusText": ""
+    }
+  ]
+}

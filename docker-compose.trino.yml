@@ -1,0 +1,36 @@
+version: '3.8'
+
+# Trino (formerly PrestoSQL) for High-Performance OCSF Queries
+# Alternative to Impala - easier setup, excellent performance
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.trino.yml up -d
+
+services:
+  trino:
+    image: trinodb/trino:448
+    container_name: zeek-demo-trino
+    hostname: trino
+    ports:
+      - "8080:8080"  # Trino web UI and REST API
+    environment:
+      - JAVA_OPTS=-Xmx4G -Xms1G
+    volumes:
+      - ./config/trino/config.properties:/etc/trino/config.properties:ro
+      - ./config/trino/jvm.config:/etc/trino/jvm.config:ro
+      - ./config/trino/catalog:/etc/trino/catalog:ro
+    depends_on:
+      - hive-metastore
+      - minio
+    networks:
+      - zeek-demo-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ui/api/stats"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+networks:
+  zeek-demo-net:
+    external: true

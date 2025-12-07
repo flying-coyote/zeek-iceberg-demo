@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- HDFS Configuration (minimal for Impala with S3) -->
+    <property>
+        <name>dfs.client.use.datanode.hostname</name>
+        <value>true</value>
+        <description>Use hostname for datanode communication</description>
+    </property>
+
+    <property>
+        <name>dfs.datanode.use.datanode.hostname</name>
+        <value>false</value>
+    </property>
+
+    <!-- Replication settings for local testing -->
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+        <description>Single replica for local testing</description>
+    </property>
+
+    <!-- Block size optimized for OCSF data -->
+    <property>
+        <name>dfs.blocksize</name>
+        <value>134217728</value>
+        <description>128MB block size</description>
+    </property>
+</configuration>

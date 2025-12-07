@@ -1,0 +1,49 @@
+version: '3.8'
+
+# Simplified Impala Setup for Zeek → OCSF Demo
+# Using the all-in-one quickstart image for easier setup
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.impala-simple.yml up -d
+
+services:
+  # Impala All-in-One (Quickstart)
+  impala:
+    image: apache/impala:4.5.0-impala_quickstart_hms
+    container_name: zeek-demo-impala
+    hostname: impala
+    command: ["hms"]
+    ports:
+      - "21000:21000"  # Impala shell (beeline/jdbc)
+      - "21050:21050"  # Impala daemon web UI
+      - "25000:25000"  # Impala shell (impala-shell)
+      - "25010:25010"  # State store web UI
+      - "25020:25020"  # Catalog web UI
+    environment:
+      - HIVE_METASTORE_URI=thrift://hive-metastore:9083
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      # S3/MinIO configuration via Java properties
+      - JAVA_TOOL_OPTIONS=-Dfs.s3a.endpoint=http://minio:9000 -Dfs.s3a.access.key=minioadmin -Dfs.s3a.secret.key=minioadmin -Dfs.s3a.path.style.access=true -Dfs.s3a.connection.ssl.enabled=false
+      # Memory settings
+      - IMPALA_MEM_LIMIT=4G
+    volumes:
+      - ./config/core-site.xml:/etc/hadoop/conf/core-site.xml:ro
+      - ./config/hdfs-site.xml:/etc/hadoop/conf/hdfs-site.xml:ro
+      - ./scripts:/scripts:ro
+    depends_on:
+      - hive-metastore
+      - minio
+    networks:
+      - zeek-demo-net
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo 'SELECT 1;' | impala-shell -B 2>/dev/null | grep -q '1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+networks:
+  zeek-demo-net:
+    external: true
