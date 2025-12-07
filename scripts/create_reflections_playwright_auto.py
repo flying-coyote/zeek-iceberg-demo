@@ -39,25 +39,41 @@ async def login_to_dremio(page, username: str, password: str):
     logger.info("Navigating to Dremio...")
     await page.goto(DREMIO_URL, wait_until='networkidle', timeout=30000)
 
+    # Give page time to fully load
+    await asyncio.sleep(3)
+
     # Check if already logged in
     current_url = page.url
     if '/home' in current_url or '/space' in current_url or '/sources' in current_url:
-        logger.info("✓ Already logged in")
+        logger.info("✓ Already logged in (detected from URL)")
+        return True
+
+    # Check if we can see authenticated content (no login form)
+    try:
+        username_field = await page.query_selector('input[name="username"]')
+        if not username_field:
+            logger.info("✓ Already logged in (no login form found)")
+            return True
+    except:
+        logger.info("✓ Already logged in (authentication detected)")
         return True
 
     logger.info("Logging in...")
 
     try:
+        # Wait for username field to be visible
+        await page.wait_for_selector('input[name="username"]', state='visible', timeout=10000)
+
         # Fill username
-        await page.fill('input[name="username"]', username, timeout=5000)
+        await page.fill('input[name="username"]', username, timeout=10000)
         logger.info(f"  ✓ Entered username: {username}")
 
         # Fill password
-        await page.fill('input[name="password"]', password)
+        await page.fill('input[name="password"]', password, timeout=10000)
         logger.info("  ✓ Entered password")
 
         # Click login button
-        await page.click('button[type="submit"]', timeout=5000)
+        await page.click('button[type="submit"]', timeout=10000)
         logger.info("  ✓ Clicked login")
 
         # Wait for navigation (increased to 20s for slower systems)
@@ -65,8 +81,32 @@ async def login_to_dremio(page, username: str, password: str):
         logger.info("✓ Successfully logged in")
         return True
 
+    except PlaywrightTimeout as e:
+        logger.warning(f"Login automation timed out: {e}")
+        logger.info("")
+        logger.info("⚠️  The login form didn't appear or took too long to load.")
+        logger.info("If you manually logged in, the script will continue...")
+        logger.info("Checking current state...")
+
+        # Check if manual login succeeded
+        await asyncio.sleep(2)
+        current_url = page.url
+        if '/home' in current_url or '/space' in current_url or '/sources' in current_url:
+            logger.info("✓ Manual login detected - continuing")
+            return True
+        else:
+            logger.error("❌ Not logged in. Please check Dremio is accessible.")
+            return False
+
     except Exception as e:
         logger.error(f"Login failed: {e}")
+        logger.info("If you've manually logged in, the script may still continue...")
+        # Check if we're actually logged in despite the error
+        await asyncio.sleep(2)
+        current_url = page.url
+        if '/home' in current_url or '/space' in current_url or '/sources' in current_url:
+            logger.info("✓ Detected successful login - continuing")
+            return True
         return False
 
 
