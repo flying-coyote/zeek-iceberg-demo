@@ -60,8 +60,8 @@ async def login_to_dremio(page, username: str, password: str):
         await page.click('button[type="submit"]', timeout=5000)
         logger.info("  ✓ Clicked login")
 
-        # Wait for navigation
-        await page.wait_for_url('**/home**', timeout=10000)
+        # Wait for navigation (increased to 20s for slower systems)
+        await page.wait_for_url('**/home**', timeout=20000)
         logger.info("✓ Successfully logged in")
         return True
 
