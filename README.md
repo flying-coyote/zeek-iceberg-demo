@@ -5,19 +5,23 @@
 ## 📌 Current Status (December 2025)
 
 **See [PROJECT-STATUS-CURRENT.md](PROJECT-STATUS-CURRENT.md) for detailed current state**
+**See [CLAUDE.md](CLAUDE.md) for AI assistant context**
 
 ### Quick Status
 - ✅ **Infrastructure**: Running (Docker + bind mounts for persistence)
 - ✅ **Data Loaded**: 1,000,000 OCSF records (89.6MB Parquet)
 - ✅ **OCSF Compliance**: 100% (65 fields, Class 4001)
 - ✅ **Demo Ready**: Complete presentation guides
-- ⏳ **Reflections**: Scripts ready, awaiting deployment
+- ✅ **Project Structure**: CLAUDE.md created, requirements.txt added
+- ⏳ **MinIO Source**: Needs configuration in Dremio (enable compatibility mode)
+- ⏳ **Reflections**: Scripts ready, blocked by MinIO source setup
 - ❌ **Additional Protocols**: DNS, SSL, SMTP not yet implemented
 
 ### What to Do Next
-1. **Deploy Reflections**: See [RUN-PLAYWRIGHT-NOW.md](RUN-PLAYWRIGHT-NOW.md)
-2. **Practice Demo**: See [START-DEMO-NOW.md](START-DEMO-NOW.md)
-3. **Present**: See [DEMO-FINAL-CHECKLIST.md](DEMO-FINAL-CHECKLIST.md)
+1. **Fix MinIO Source**: See [FIX-MINIO-CONNECTION.md](FIX-MINIO-CONNECTION.md) - MUST enable compatibility mode!
+2. **Deploy Reflections**: See [RUN-PLAYWRIGHT-NOW.md](RUN-PLAYWRIGHT-NOW.md)
+3. **Practice Demo**: See [START-DEMO-NOW.md](START-DEMO-NOW.md)
+4. **Present**: See [DEMO-FINAL-CHECKLIST.md](DEMO-FINAL-CHECKLIST.md)
 
 ---
 
@@ -46,25 +50,57 @@ docker-compose up -d
 docker-compose ps
 ```
 
-### Step 3: Load OCSF Data
+### Step 3: Install Python Dependencies
 ```bash
-# Activate Python environment
-source .venv/bin/activate
+# Create virtual environment (if not exists)
+python3 -m venv venv
 
-# Load 100K records for demo
-python scripts/load_real_zeek_to_ocsf.py --records 100000 --validate
+# Activate environment
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install Playwright browsers
+playwright install chromium
 ```
 
-### Step 4: Access Dremio
-- Open http://localhost:9047
-- Create admin account (first time only)
-- Add MinIO source (see [DREMIO-SETUP-GUIDE.md](DREMIO-SETUP-GUIDE.md))
+### Step 4: Load OCSF Data
+```bash
+# Load 1M OCSF records (or specify --records for smaller dataset)
+python scripts/load_real_zeek_to_ocsf.py
+```
 
-### Step 5: Run Queries
+### Step 5: Configure Dremio MinIO Source
+```bash
+# Set credentials
+export DREMIO_USERNAME="admin"
+export DREMIO_PASSWORD="your_password"
+
+# Setup MinIO source (CRITICAL: enables compatibility mode)
+python scripts/setup_dremio_minio_source.py
+```
+
+**Manual alternative**: See [FIX-MINIO-CONNECTION.md](FIX-MINIO-CONNECTION.md)
+
+### Step 6: Deploy Reflections (Query Acceleration)
+```bash
+# Run reflection setup script
+bash run-reflection-setup.sh
+
+# Wait 2-5 minutes for reflections to build
+```
+
+### Step 7: Run Queries
 ```sql
+-- Open http://localhost:9047
+-- Navigate to SQL Editor and run:
+
 SELECT activity_name, COUNT(*) as events
 FROM minio."zeek-data"."network-activity-ocsf"
 GROUP BY activity_name;
+
+-- See DEMO-SQL-QUERIES.md for more examples
 ```
 
 ---
@@ -172,10 +208,13 @@ zeek-iceberg-demo/
 ## 📚 Documentation
 
 ### Essential Guides
-- [PROJECT-STATUS-2024-12.md](PROJECT-STATUS-2024-12.md) - Current detailed status
-- [DREMIO-SETUP-GUIDE.md](DREMIO-SETUP-GUIDE.md) - Dremio configuration
+- **[CLAUDE.md](CLAUDE.md)** - AI assistant context (comprehensive project guide)
+- **[PROJECT-STATUS-CURRENT.md](PROJECT-STATUS-CURRENT.md)** - Current detailed status
+- **[FIX-MINIO-CONNECTION.md](FIX-MINIO-CONNECTION.md)** - MinIO source troubleshooting
+- **[START-DEMO-NOW.md](START-DEMO-NOW.md)** - Demo presentation guide
+- **[DEMO-SQL-QUERIES.md](DEMO-SQL-QUERIES.md)** - SQL query examples
+- [PROJECT-AUDIT-REPORT.md](PROJECT-AUDIT-REPORT.md) - Best practices audit
 - [OCSF-IMPLEMENTATION-DECISION.md](OCSF-IMPLEMENTATION-DECISION.md) - Design rationale
-- [DREMIO-REFLECTIONS-COMPLETE-GUIDE.md](DREMIO-REFLECTIONS-COMPLETE-GUIDE.md) - Query optimization
 
 ## Architecture
 
